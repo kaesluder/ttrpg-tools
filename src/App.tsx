@@ -33,7 +33,7 @@ function App() {
   const renderList = (): JSX.Element => {
     const shuffled = shuffleArray(imageList).slice(0, 9);
     const ilist = shuffled.map((fileName): JSX.Element => {
-      return <img className="h-48 w-48 object-none" key={fileName} src={'/mosaic/' + fileName} />
+      return <img className="h-48 w-48 object-cover" key={fileName} src={'/mosaic/' + fileName} />
     })
     return <>{ilist}</>
   };
