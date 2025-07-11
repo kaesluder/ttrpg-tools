@@ -4,6 +4,7 @@ import App from "../src/App";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
+import * as mosaicUtils from "../src/mosaicUtils";
 
 const exampleData = [
   "15th_century_egyptian_anatomy_of_horse.jpg",
@@ -23,25 +24,23 @@ export const handlers = [
   }),
 ];
 
-export const server = setupServer(...handlers);
+const server = setupServer(...handlers);
 
 describe("App", async () => {
   beforeAll(() => server.listen());
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 
-  it("Test the test: Gets data from msw", async () => {
-    const res = await fetch("/mosaic/index.json");
-    const imageList = await res.json();
-    expect(imageList.length).toBeGreaterThan(0);
-  });
-
   it("Renders 9 images", async () => {
+    const spy = vi
+      .spyOn(mosaicUtils, "mosaicFetch")
+      .mockImplementation(async () => exampleData);
     const { container } = render(<App />);
 
     await waitFor(() => {
       const imageList = container.querySelectorAll("img.img-tile");
       expect(imageList).toHaveLength(9);
+      expect(spy).toHaveBeenCalled();
     });
   });
 });

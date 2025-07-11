@@ -1,5 +1,6 @@
 import { useState, useEffect, type JSX } from "react";
 import "./App.css";
+import { mosaicFetch } from "./mosaicUtils";
 
 function shuffleArray(array: string[]) {
   let currentIndex = array.length;
@@ -22,12 +23,12 @@ function shuffleArray(array: string[]) {
 }
 
 function App() {
-  const [imageList, setImageList] = useState([]);
+  const [imageList, setImageList] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch("/mosaic/index.json")
-      .then((res) => res.json())
-      .then(setImageList);
+    mosaicFetch()
+      .then(setImageList)
+      .catch((error) => console.error("failed to fetch image list:", error));
   }, []);
 
   const renderList = (): JSX.Element => {
