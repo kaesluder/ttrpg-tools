@@ -32,11 +32,12 @@ function App() {
 
   const renderList = (): JSX.Element => {
     const shuffled = shuffleArray(imageList).slice(0, 9);
-    const ilist = shuffled.map((fileName): JSX.Element => {
+    const ilist = shuffled.map((fileName, idx): JSX.Element => {
       return (
         <img
           className="h-48 w-48 object-cover img-tile"
           key={fileName}
+          id={`image-tile${idx}`}
           src={"/mosaic/" + fileName}
         />
       );
