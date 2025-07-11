@@ -33,16 +33,20 @@ function App() {
   const renderList = (): JSX.Element => {
     const shuffled = shuffleArray(imageList).slice(0, 9);
     const ilist = shuffled.map((fileName): JSX.Element => {
-      return <img className="h-48 w-48 object-cover" key={fileName} src={'/mosaic/' + fileName} />
-    })
-    return <>{ilist}</>
+      return (
+        <img
+          className="h-48 w-48 object-cover img-tile"
+          key={fileName}
+          src={"/mosaic/" + fileName}
+        />
+      );
+    });
+    return <>{ilist}</>;
   };
 
   return (
     <>
-      <div className="grid grid-cols-3 bg-white">
-        {renderList()}
-      </div>
+      <div className="grid grid-cols-3 bg-white">{renderList()}</div>
     </>
   );
 }
