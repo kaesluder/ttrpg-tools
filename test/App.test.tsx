@@ -1,10 +1,8 @@
 // src/components/Button.test.tsx
 import { render, screen, waitFor } from "@testing-library/react";
 import App from "../src/App";
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { http, HttpResponse } from "msw";
-import { setupServer } from "msw/node";
-import * as mosaicUtils from "../src/mosaicUtils";
+import { vi, describe, it, expect, Mock, beforeEach, afterEach } from "vitest";
+import { mosaicFetch } from "../src/mosaicUtils";
 
 const exampleData = [
   "15th_century_egyptian_anatomy_of_horse.jpg",
@@ -18,29 +16,22 @@ const exampleData = [
   "640px-Avon_Fantasy_Reader_8_3.jpg",
 ];
 
-export const handlers = [
-  http.get("/mosaic/index.json", () => {
-    return HttpResponse.json(exampleData);
-  }),
-];
-
-const server = setupServer(...handlers);
+vi.mock("../src/mosaicUtils", () => {
+  const mockMosaicFetch = vi.fn(async (): Promise<string[]> => exampleData);
+  return {
+    mosaicFetch: mockMosaicFetch,
+  };
+});
 
 describe("App", async () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-
   it("Renders 9 images", async () => {
-    const spy = vi
-      .spyOn(mosaicUtils, "mosaicFetch")
-      .mockImplementation(async () => exampleData);
     const { container } = render(<App />);
 
     await waitFor(() => {
       const imageList = container.querySelectorAll("img.img-tile");
       expect(imageList).toHaveLength(9);
-      expect(spy).toHaveBeenCalled();
+      expect(mosaicFetch).toHaveBeenCalled();
+      (mosaicFetch as Mock).mockClear();
     });
   });
 });
