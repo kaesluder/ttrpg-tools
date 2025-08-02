@@ -1,45 +1,58 @@
 import { useState, useEffect, type JSX } from "react";
 import "./App.css";
-import { mosaicFetch } from "./mosaicUtils";
-
-function shuffleArray(array: string[]) {
-  let currentIndex = array.length;
-  let randomIndex;
-
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-
-  return array;
-}
+import {
+  mosaicFetch,
+  shuffleArray,
+  type Tile,
+  tilesFromFileList,
+} from "./mosaicUtils";
 
 function App() {
-  const [imageList, setImageList] = useState<string[]>([]);
+  const [imageList, setImageList] = useState<Tile[]>([]);
 
   useEffect(() => {
     mosaicFetch()
-      .then(setImageList)
+      .then((fileList: string[]) => {
+        setImageList(shuffleArray(tilesFromFileList(fileList)));
+      })
       .catch((error) => console.error("failed to fetch image list:", error));
   }, []);
 
+  /**
+   * Handles ui logic after a user clicks a tile.
+   * - Toggles selected property for tile.
+   *
+   * @param {React.MouseEvent<HTMLImageElement>} e Image tile.
+   * @modifies imageList
+   *
+   */
+  const handleTileClick = (e: React.MouseEvent<HTMLImageElement>) => {
+    const id = e.currentTarget.id;
+    const index = parseInt(id.replace("image-tile", ""));
+    const tiles = [...imageList]; // copy
+    tiles[index].selected = !tiles[index].selected; // toggle
+    setImageList(tiles);
+  };
+  /**
+   * Creates a renderable list of li elements from imageList
+   * @returns {JSX.Element}
+   */
   const renderList = (): JSX.Element => {
-    const shuffled = shuffleArray(imageList).slice(0, 9);
-    const ilist = shuffled.map((fileName, idx): JSX.Element => {
+    const drawnTiles = imageList.slice(0, 9);
+    const ilist = drawnTiles.map((tile, idx): JSX.Element => {
       return (
         <img
-          className="h-48 w-48 object-cover img-tile"
-          key={fileName}
+          className={
+            tile.selected
+              ? "h-48 w-48 object-cover img-tile border-4 border-solid border-indigo-500"
+              : "h-48 w-48 object-cover img-tile border-none"
+          }
+          key={tile.url}
           id={`image-tile${idx}`}
-          src={"/mosaic/" + fileName}
+          src={"/mosaic/" + tile.url}
+          onClick={(e: React.MouseEvent<HTMLImageElement>) => {
+            handleTileClick(e);
+          }}
         />
       );
     });
