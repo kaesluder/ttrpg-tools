@@ -49,7 +49,7 @@ function App() {
           }
           key={tile.url}
           id={`image-tile${idx}`}
-          src={"/mosaic/" + tile.url}
+          src={"./mosaic/" + tile.url}
           onClick={(e: React.MouseEvent<HTMLImageElement>) => {
             handleTileClick(e);
           }}

@@ -20,7 +20,7 @@ export type Tile = {
  * console.log(`Found ${imageList.length} images`);
  */
 export const mosaicFetch = async (): Promise<string[]> => {
-  const res = await fetch("/mosaic/index.json");
+  const res = await fetch("./mosaic/index.json");
   const imageList: string[] = await res.json();
   return imageList;
 };
