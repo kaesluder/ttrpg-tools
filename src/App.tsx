@@ -1,19 +1,28 @@
-import { useState, useEffect, type JSX } from "react";
+import { useState, useEffect, useRef, type JSX } from "react";
 import "./App.css";
 import {
   mosaicFetch,
   shuffleArray,
   type Tile,
   tilesFromFileList,
+  drawGenerator,
 } from "./mosaicUtils";
 
 function App() {
+  // full list of tiles
   const [imageList, setImageList] = useState<Tile[]>([]);
+  const [displayTiles, setDisplayTiles] = useState<Tile[]>([]);
+  const cardGen = useRef<Generator<Tile> | undefined>(undefined);
 
   useEffect(() => {
     mosaicFetch()
       .then((fileList: string[]) => {
-        setImageList(shuffleArray(tilesFromFileList(fileList)));
+        const tileList = tilesFromFileList(fileList);
+        setImageList(tileList);
+        cardGen.current = drawGenerator(tileList);
+        setDisplayTiles(
+          Array.from({ length: 9 }, () => cardGen.current!.next().value),
+        );
       })
       .catch((error) => console.error("failed to fetch image list:", error));
   }, []);
@@ -29,17 +38,41 @@ function App() {
   const handleTileClick = (e: React.MouseEvent<HTMLImageElement>) => {
     const id = e.currentTarget.id;
     const index = parseInt(id.replace("image-tile", ""));
-    const tiles = [...imageList]; // copy
+    const tiles = [...displayTiles]; // copy
     tiles[index].selected = !tiles[index].selected; // toggle
-    setImageList(tiles);
+    setDisplayTiles(tiles);
   };
+
+  const handleDrawCards = () => {
+    console.log("=================");
+    console.log("displayTiles.length", displayTiles.length);
+    // const displayTilesCopy = JSON.parse(JSON.stringify(displayTiles));
+    const selectedTiles = displayTiles.filter((tile) => tile.selected);
+    const result = displayTiles.map((tile: Tile) => {
+      if (tile.selected) {
+        return tile;
+      } else {
+        // tiles will complete after many redraws.
+        // Ensure that selection state for drawn tiles is false
+        // to prevent having multiple copies selected.
+        let newTile = cardGen.current!.next().value;
+
+        // ensure that selected cards are not duplicated
+        while (selectedTiles.map((tile) => tile.url).includes(newTile.url)) {
+          newTile = cardGen.current!.next().value;
+        }
+        return { ...newTile, selected: false };
+      }
+    });
+    setDisplayTiles(result);
+  };
+
   /**
    * Creates a renderable list of li elements from imageList
    * @returns {JSX.Element}
    */
   const renderList = (): JSX.Element => {
-    const drawnTiles = imageList.slice(0, 9);
-    const ilist = drawnTiles.map((tile, idx): JSX.Element => {
+    const ilist = displayTiles.map((tile, idx): JSX.Element => {
       return (
         <img
           className={
@@ -47,7 +80,7 @@ function App() {
               ? "h-48 w-48 object-cover img-tile border-4 border-solid border-indigo-500"
               : "h-48 w-48 object-cover img-tile border-none"
           }
-          key={tile.url}
+          key={`image-tile${idx}`}
           id={`image-tile${idx}`}
           src={"./mosaic/" + tile.url}
           onClick={(e: React.MouseEvent<HTMLImageElement>) => {
@@ -62,6 +95,9 @@ function App() {
   return (
     <>
       <div className="grid grid-cols-3 bg-white">{renderList()}</div>
+      <div>
+        <button onClick={handleDrawCards}>Draw New Tiles</button>
+      </div>
     </>
   );
 }
