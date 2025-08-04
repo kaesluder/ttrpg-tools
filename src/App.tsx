@@ -52,15 +52,15 @@ function App() {
       if (tile.selected) {
         return tile;
       } else {
-        // tiles will complete after many redraws.
-        // Ensure that selection state for drawn tiles is false
-        // to prevent having multiple copies selected.
         let newTile = cardGen.current!.next().value;
 
         // ensure that selected cards are not duplicated
         while (selectedTiles.map((tile) => tile.url).includes(newTile.url)) {
           newTile = cardGen.current!.next().value;
         }
+        // tiles will repeat after many redraws.
+        // Ensure that selection state for drawn tiles is false
+        // to prevent having multiple copies selected.
         return { ...newTile, selected: false };
       }
     });
