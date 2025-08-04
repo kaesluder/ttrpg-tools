@@ -1,4 +1,3 @@
-// src/components/Button.test.tsx
 import { render, screen, waitFor } from "@testing-library/react";
 import App from "../src/App";
 import { vi, describe, it, expect, Mock, beforeEach, afterEach } from "vitest";

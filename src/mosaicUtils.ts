@@ -76,3 +76,34 @@ export function tilesFromFileList(fileList: string[]): Tile[] {
     selected: false,
   }));
 }
+
+/**
+ * Creates an infinite generator that yields elements from an array in random order.
+ * When the array is exhausted, it reshuffles and continues yielding elements.
+ *
+ * @template T - The type of elements in the array
+ * @param {T[]} array - The array of elements to draw from (must not be empty)
+ * @yields {T} The next element from the shuffled array
+ * @returns {Generator<T>} An infinite generator that cycles through the array elements
+ * @throws {Error} If the input array is empty
+ *
+ * @example
+ * ```typescript
+ * const cardGen = drawGenerator(['A', 'K', 'Q', 'J']);
+ * const hand = Array.from({ length: 5 }, () => cardGen.next().value);
+ * console.log(hand); // ['Q', 'A', 'J', 'K', 'A'] (in random order)
+ * ```
+ */
+export function* drawGenerator<T>(array: T[]): Generator<T> {
+  if (array.length === 0) {
+    throw new Error("drawGenerator requires a non-empty array");
+  }
+
+  let localDeck: T[] = shuffleArray([...array]);
+  while (true) {
+    if (localDeck.length === 0) {
+      localDeck = shuffleArray([...array]);
+    }
+    yield localDeck.shift()!;
+  }
+}
