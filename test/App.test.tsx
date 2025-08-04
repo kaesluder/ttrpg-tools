@@ -1,19 +1,27 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
 import App from "../src/App";
 import { vi, describe, it, expect, Mock, beforeEach, afterEach } from "vitest";
 import { mosaicFetch } from "../src/mosaicUtils";
 
 const exampleData = [
-  "15th_century_egyptian_anatomy_of_horse.jpg",
-  "15th_century_egyptian_anatomy_of_horse_head.jpg",
-  "15th_century_egyptian_anatomy_of_horse_lower.jpg",
-  "15th_century_egyptian_anatomy_of_horse_upper.jpg",
-  "163_of_'Five_Years_in_Siam_from_1891_to_1896_..._With_maps_and_illustrations_by_the_author'_(11249062174).jpg",
-  "640px-Avon_Fantasy_Reader_8.jpg",
-  "640px-Avon_Fantasy_Reader_8_1.jpg",
-  "640px-Avon_Fantasy_Reader_8_2.jpg",
-  "640px-Avon_Fantasy_Reader_8_3.jpg",
-  "640px-Avon_Fantasy_Reader_8_4.jpg",
+  "1.jpg",
+  "2.jpg",
+  "3.jpg",
+  "4.jpg",
+  "5.jpg",
+  "6.jpg",
+  "7.jpg",
+  "8.jpg",
+  "9.jpg",
+  "10.jpg",
+  "11.jpg",
+  "12.jpg",
+  "13.jpg",
+  "14.jpg",
+  "15.jpg",
+  "16.jpg",
+  "17.jpg",
+  "18.jpg",
 ];
 
 vi.mock("../src/mosaicUtils", async () => {
@@ -116,6 +124,76 @@ describe("App", async () => {
       // First tile should be deselected, second should remain selected
       expect(firstTile.className).toContain("border-none");
       expect(secondTile.className).toContain("border-indigo-500");
+    });
+  });
+});
+
+describe("App redraw", () => {
+  it("replaces all tiles when none are selected", async () => {
+    const { container } = render(<App />);
+    const urlList: string[] = [];
+
+    await waitFor(() => {
+      const imageList = container.querySelectorAll("img.img-tile");
+      for (const image of imageList) {
+        urlList.push(image.getAttribute("src")!);
+      }
+      console.log("urlList", urlList);
+      expect(urlList.length).toBe(9);
+    });
+    act(() => {
+      const reloadButton = container.querySelector(
+        "button#refresh_button",
+      ) as HTMLButtonElement;
+      if (reloadButton) {
+        reloadButton.click();
+      }
+    });
+
+    await waitFor(() => {
+      const imageList2 = container.querySelectorAll("img.img-tile");
+      const urlSet = new Set(urlList);
+      for (const image of imageList2) {
+        expect(!urlSet.has(image.getAttribute("src")!));
+      }
+    });
+  });
+  it("holds back tiles after replacement", async () => {
+    const { container } = render(<App />);
+    let imageList: NodeListOf<HTMLImageElement>;
+    let firstURL: string;
+    let urlList: string[] = [];
+
+    await waitFor(() => {
+      imageList = container.querySelectorAll("img.img-tile");
+      firstURL = imageList[0].getAttribute("src")!;
+      expect(firstURL).toBeTruthy();
+      urlList = Array.from(imageList)
+        .map((image) => image.getAttribute("src")!)
+        .slice(1);
+    });
+
+    const urlSet = new Set(urlList);
+
+    act(() => {
+      const reloadButton = container.querySelector(
+        "button#refresh_button",
+      ) as HTMLButtonElement;
+      if (imageList[0]) {
+        imageList[0].click();
+      }
+      if (reloadButton) {
+        reloadButton.click();
+      }
+    });
+
+    await waitFor(() => {
+      const imageList2 = container.querySelectorAll("img.img-tile");
+      for (let i = 1; i < 9; i++) {
+        expect(!urlSet.has(imageList2[i].getAttribute("src")!));
+      }
+      const firstImage = container.querySelector("img.img-tile")!;
+      expect(firstImage.getAttribute("src")!).toBe(firstURL);
     });
   });
 });

@@ -11,7 +11,12 @@ import {
 function App() {
   // full list of tiles
   const [imageList, setImageList] = useState<Tile[]>([]);
+
+  // List of tiles displayed on page.
   const [displayTiles, setDisplayTiles] = useState<Tile[]>([]);
+
+  // Generator object. Contains internal generator state and list of
+  // all tiles.
   const cardGen = useRef<Generator<Tile> | undefined>(undefined);
 
   useEffect(() => {
@@ -43,10 +48,15 @@ function App() {
     setDisplayTiles(tiles);
   };
 
+  /**
+   * Handles redrawing from the deck of tiles when button is
+   * clicked. Avoids dupliating or replacing selected tiles.
+   * @modifies displayTiles (state): list of tiles displayed on web page
+   * @modifies cardGen (ref): generator object to simulate repeated draws from shuffled tiles
+   */
   const handleDrawCards = () => {
     console.log("=================");
     console.log("displayTiles.length", displayTiles.length);
-    // const displayTilesCopy = JSON.parse(JSON.stringify(displayTiles));
     const selectedTiles = displayTiles.filter((tile) => tile.selected);
     const result = displayTiles.map((tile: Tile) => {
       if (tile.selected) {
@@ -96,7 +106,9 @@ function App() {
     <>
       <div className="grid grid-cols-3 bg-white">{renderList()}</div>
       <div>
-        <button onClick={handleDrawCards}>Draw New Tiles</button>
+        <button id="refresh_button" onClick={handleDrawCards}>
+          Draw New Tiles
+        </button>
       </div>
     </>
   );
