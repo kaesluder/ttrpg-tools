@@ -2,16 +2,12 @@ import { useState, useEffect, useRef, type JSX } from "react";
 import "./App.css";
 import {
   mosaicFetch,
-  shuffleArray,
   type Tile,
   tilesFromFileList,
   drawGenerator,
 } from "./mosaicUtils";
 
 function App() {
-  // full list of tiles
-  const [imageList, setImageList] = useState<Tile[]>([]);
-
   // List of tiles displayed on page.
   const [displayTiles, setDisplayTiles] = useState<Tile[]>([]);
 
@@ -23,7 +19,6 @@ function App() {
     mosaicFetch()
       .then((fileList: string[]) => {
         const tileList = tilesFromFileList(fileList);
-        setImageList(tileList);
         cardGen.current = drawGenerator(tileList);
         setDisplayTiles(
           Array.from({ length: 9 }, () => cardGen.current!.next().value),
@@ -49,7 +44,7 @@ function App() {
   };
 
   /**
-   * Handles redrawing from the deck of tiles when button is
+   * Handles redrawing from the deck of tiles when redraw button is
    * clicked. Avoids dupliating or replacing selected tiles.
    * @modifies displayTiles (state): list of tiles displayed on web page
    * @modifies cardGen (ref): generator object to simulate repeated draws from shuffled tiles
@@ -103,14 +98,37 @@ function App() {
   };
 
   return (
-    <>
-      <div className="grid grid-cols-3 bg-white">{renderList()}</div>
-      <div>
-        <button id="refresh_button" onClick={handleDrawCards}>
-          Draw New Tiles
-        </button>
-      </div>
-    </>
+    <main className="flex gap-6">
+      <section id="mosaic">
+        <div className="grid grid-cols-3 bg-white">{renderList()}</div>
+        <div className="mt-3">
+          <button id="refresh_button" onClick={handleDrawCards}>
+            Draw New Tiles
+          </button>
+        </div>
+      </section>
+      <section className="prose-invert prose text-left">
+        <h1>Instructions</h1>
+        <p>
+          Click <em>redraw</em> to show a new set of random tiles. Click one or
+          more individual tiles to keep them through the next draw.
+        </p>
+        <p>Images may be repeated.</p>
+        <p>Image sources:</p>
+        <ul className="list-disc">
+          <li>
+            <a href="https://commons.wikimedia.org/wiki/Main_Page">
+              Wikimedia Commons
+            </a>
+          </li>
+          <li>
+            <a href="https://www.metmuseum.org/about-the-met/policies-and-documents/open-access">
+              The Metropolitan Museum of Art Open Access Collection
+            </a>
+          </li>
+        </ul>
+      </section>
+    </main>
   );
 }
 

@@ -1,6 +1,6 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, waitFor, act } from "@testing-library/react";
 import App from "../src/App";
-import { vi, describe, it, expect, Mock, beforeEach, afterEach } from "vitest";
+import { vi, describe, it, expect, Mock } from "vitest";
 import { mosaicFetch } from "../src/mosaicUtils";
 
 const exampleData = [
