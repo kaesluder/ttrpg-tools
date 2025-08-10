@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "types": ["vite/client", "react"]
+    "types": ["vite/client", "react"],
+    "erasableSyntaxOnly": false
   },
+
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
