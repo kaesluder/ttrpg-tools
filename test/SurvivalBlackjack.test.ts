@@ -1,5 +1,5 @@
 import { SurvivalBlackjack } from "../src/SurvivalBlackjack";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { Deck, type Card, suitEnum } from "../src/Deck";
 
 describe("blackjack scoring", () => {
@@ -70,9 +70,75 @@ describe("take", () => {
 });
 
 describe("setup", () => {
-  it("deals two cards to dealer and player", () => {
+  it("creates a hand of five cards", () => {
     const game = new SurvivalBlackjack();
     game.setup();
     expect(game.resources).toHaveLength(5);
+  });
+});
+
+describe("startTurn", () => {
+  it("deals two cards to dealer and player", () => {
+    const game = new SurvivalBlackjack();
+    game.setup();
+    game.startTurn();
+    expect(game.playerHand).toHaveLength(2);
+    expect(game.dealerHand).toHaveLength(2);
+  });
+});
+
+describe("playerDraw", () => {
+  it("adds a card to playerHand", () => {
+    const game = new SurvivalBlackjack();
+    game.setup();
+    game.startTurn();
+    expect(game.playerHand).toHaveLength(2);
+    const callback = vi.fn();
+    const hasDrawn = game.playerDraw(callback);
+    expect(game.playerHand).toHaveLength(3);
+    expect(callback).not.toHaveBeenCalled();
+    expect(hasDrawn).toBe(true);
+  });
+
+  it("handles exhausted draw pile", () => {
+    const game = new SurvivalBlackjack();
+    game.setup();
+    game.startTurn();
+    expect(game.playerHand).toHaveLength(2);
+    // discard 50 cards to exhaust deck
+    game.take(50);
+    const callback = vi.fn();
+    const hasDrawn = game.playerDraw(callback);
+    expect(game.playerHand).toHaveLength(2);
+    expect(callback).toHaveBeenCalled();
+    expect(hasDrawn).toBe(false);
+  });
+});
+
+describe("dealerDraw", () => {
+  it("adds a card to dealerHand", () => {
+    const game = new SurvivalBlackjack();
+    game.setup();
+    game.startTurn();
+    expect(game.dealerHand).toHaveLength(2);
+    const callback = vi.fn();
+    const hasDrawn = game.dealerDraw(callback);
+    expect(game.dealerHand).toHaveLength(3);
+    expect(callback).not.toHaveBeenCalled();
+    expect(hasDrawn).toBe(true);
+  });
+
+  it("handles exhausted draw pile", () => {
+    const game = new SurvivalBlackjack();
+    game.setup();
+    game.startTurn();
+    expect(game.dealerHand).toHaveLength(2);
+    // discard 50 cards to exhaust deck
+    game.take(50);
+    const callback = vi.fn();
+    const hasDrawn = game.dealerDraw(callback);
+    expect(game.dealerHand).toHaveLength(2);
+    expect(callback).toHaveBeenCalled();
+    expect(hasDrawn).toBe(false);
   });
 });

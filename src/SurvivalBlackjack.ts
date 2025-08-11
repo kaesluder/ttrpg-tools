@@ -77,11 +77,23 @@ export class SurvivalBlackjack {
     }, 0);
   }
 
+  /**
+   * Start a new turn, dealing two cards to player and dealer.
+   * @modifies this.playerHand
+   * @modifies this.dealerHand
+   */
   startTurn() {
     this.playerHand = this.take(2);
     this.dealerHand = this.take(2);
   }
 
+  /**
+   * Draw a single card from the draw pile and add to player hand.
+   * @param {function} deckExhaustedHook function to call if deck is exhausted
+   * @modifies playerHand
+   * @modifies drawIter state
+   * @returns {boolean} true if card has been drawn.
+   */
   playerDraw(deckExhaustedHook: () => void): boolean {
     const next = this.drawIter.next();
     if (next.value) {
@@ -93,6 +105,13 @@ export class SurvivalBlackjack {
     }
   }
 
+  /**
+   * Draw a single card from the draw pile and add to dealer hand.
+   * @param {function} deckExhaustedHook function to call if deck is exhausted
+   * @modifies dealerHand
+   * @modifies drawIter state
+   * @returns {boolean} true if card has been drawn.
+   */
   dealerDraw(deckExhaustedHook: () => void): boolean {
     const next = this.drawIter.next();
     if (next.value) {
@@ -104,6 +123,12 @@ export class SurvivalBlackjack {
     }
   }
 
+  /**
+   * Draw repeatedly until dealer minimum is reached
+   * @modifies dealerHand
+   * @modifies drawIter state
+   * @param deckExhaustedHook
+   */
   dealerDrawTo17(deckExhaustedHook: () => void) {
     while (this.blackjackScoreHand(this.dealerHand) < 17) {
       if (!this.dealerDraw(deckExhaustedHook)) {
@@ -111,7 +136,15 @@ export class SurvivalBlackjack {
       }
     }
   }
-
+  /**
+   * Scores turn:
+   * - 1 point to player if dealer goes bust
+   * - 1 point to player if dealer sum is less than player sum
+   * - 1 point to dealer if player goes bust
+   * - 1 point to dealer if player sum less than dealer sum
+   * @modifies playerScore
+   * @modifies dealerScore
+   */
   scoreTurn(): void {
     const pScore = this.blackjackScoreHand(this.playerHand);
     const dScore = this.blackjackScoreHand(this.dealerHand);
