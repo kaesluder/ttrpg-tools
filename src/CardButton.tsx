@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type JSX } from "react";
-import { type Card } from "./Deck";
+import { type Card, suitEnum } from "./Deck";
 
 interface CardButtonProps {
   card: Card;
@@ -13,7 +13,8 @@ export default function CardButton(props: CardButtonProps) {
     }
   };
 
-  const localizeRank = (rank: number) => {
+  /** transform special card ranks to localized string */
+  const localizeRank = (rank: number): string => {
     switch (rank) {
       case 0:
         return "Joker";
@@ -30,11 +31,31 @@ export default function CardButton(props: CardButtonProps) {
     }
   };
 
+  /** Transform suits to localized string */
+  const localizeSuit = (suit: suitEnum): string => {
+    switch (suit) {
+      case suitEnum.clubs:
+        return "Clubs";
+      case suitEnum.diamonds:
+        return "Diamonds";
+      case suitEnum.hearts:
+        return "Hearts";
+      case suitEnum.spades:
+        return "Spades";
+      default:
+        // joker
+        return "";
+    }
+  };
+
   const rankString = localizeRank(props.card.rank);
+  const suitString = localizeSuit(props.card.suit);
+
+  // TODO: format, suit formatting
 
   return (
     <button onClick={handleClick}>
-      {rankString} {props.card.suit.toString()}
+      {rankString} {suitString}
     </button>
   );
 }
