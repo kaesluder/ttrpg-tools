@@ -8,21 +8,52 @@ export default function SurvivalBlackjackTable() {
   const game = useRef<SurvivalBlackjack | null>(new SurvivalBlackjack());
 
   game.current?.setup();
+  game.current?.startTurn();
 
   const [resources, setResources] = useState(game.current?.resources);
+  const [playerHand, setPlayerHand] = useState(game.current?.playerHand);
+  const [dealerHand, setDealerHand] = useState(game.current?.dealerHand);
+  const [playerScore, setPlayerScore] = useState(game.current?.playerScore);
+  const [dealerScore, setDealerScore] = useState(game.current?.dealerScore);
 
-  function buildCardList(cards: Card[]) {
+  function buildCardList(
+    cards: Card[],
+    prefixKey: string,
+    clickHandler: () => void,
+  ) {
     return cards.map((card, index) => {
-      const key = `${card.rank}:${card.suit}:${index}`;
-      return <CardButton card={card} key={key}></CardButton>;
+      const key = `${prefixKey}:${card.rank}:${card.suit}:${index}`;
+      return (
+        <CardButton
+          card={card}
+          key={key}
+          clickHandler={clickHandler}
+        ></CardButton>
+      );
     });
   }
 
   return (
-    <main>
+    <main className="flex flex-row">
       <section id="resources">
         <h2>Resources</h2>
-        <div className="flex flex-col">{buildCardList(resources!)}</div>
+        <div className="flex flex-col">
+          {buildCardList(resources!, "resources", () => {})}
+        </div>
+      </section>
+      <section id="player">
+        <h2>Player</h2>
+        <div className="flex flex-col">
+          {buildCardList(playerHand!, "playerHand", () => {})}
+        </div>
+        <div>Total Score: {playerScore}</div>
+      </section>
+      <section id="dealer">
+        <h2>Dealer</h2>
+        <div className="flex flex-col">
+          {buildCardList(dealerHand!, "dealerHand", () => {})}
+        </div>
+        <div>Total Score: {dealerScore}</div>
       </section>
     </main>
   );
