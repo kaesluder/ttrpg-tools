@@ -6,10 +6,42 @@ const RESOURCE_COUNT = 5;
 export const enum turnStage {
   start,
   playerTurn,
+  hit,
   dealerTurn,
   score,
   endgame,
   finish,
+}
+
+export interface ReducerAction {
+  type: turnStage;
+}
+
+export function makeReducer(drawPile: ArrayIterator<Card>) {
+  return function reducer(state: SurvivalBlackjack, action: ReducerAction) {
+    console.log("reducer");
+    switch (action.type) {
+      case turnStage.start:
+        return produce(state, (state) => {
+          state = setup(state, drawPile);
+          state.stage = turnStage.start;
+          return state;
+        });
+      case turnStage.playerTurn:
+        return produce(state, (state) => {
+          state = startTurn(state, drawPile);
+          state.stage = turnStage.playerTurn;
+          return state;
+        });
+      case turnStage.dealerTurn:
+        return produce(state, (state) => {
+          state.stage = turnStage.dealerTurn;
+          return state;
+        });
+      default:
+        return state;
+    }
+  };
 }
 
 export class SurvivalBlackjack {

@@ -7,32 +7,10 @@ import { produce } from "immer";
 
 const deck = new Deck();
 const drawPile: ArrayIterator<Card> = deck.shuffledDeck.values();
-
-function reducer(state: sb.SurvivalBlackjack, action: any) {
-  console.log("reducer");
-  switch (action.type) {
-    case sb.turnStage.start:
-      return produce(state, (state) => {
-        state.stage = sb.turnStage.start;
-        return state;
-      });
-    case sb.turnStage.playerTurn:
-      return produce(state, (state) => {
-        state = sb.startTurn(state, drawPile);
-        state = sb.setup(state, drawPile);
-        state.stage = sb.turnStage.playerTurn;
-        return state;
-      });
-    case sb.turnStage.dealerTurn:
-      return produce(state, (state) => {
-        state = sb.startTurn(state, drawPile);
-        state.stage = sb.turnStage.dealerTurn;
-        return state;
-      });
-    default:
-      return state;
-  }
-}
+const reducer: (
+  state: sb.SurvivalBlackjack,
+  action: sb.ReducerAction,
+) => sb.SurvivalBlackjack = sb.makeReducer(drawPile);
 
 export default function SurvivalBlackjackTable() {
   const initialGame = new sb.SurvivalBlackjack();

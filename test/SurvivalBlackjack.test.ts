@@ -79,3 +79,57 @@ describe("Survival Blackjack: startTurn", () => {
     expect(gameAfterTurnStart.dealerHand).toHaveLength(2);
   });
 });
+
+describe("reducer functions", () => {
+  let deck: Deck;
+  let drawPile: ArrayIterator<Card>;
+  let game: sb.SurvivalBlackjack;
+  beforeEach(() => {
+    deck = new Deck();
+    drawPile = deck.sortedDeck.values();
+    game = new sb.SurvivalBlackjack();
+  });
+  it("sets up resources in start game stage", () => {
+    const reducer = sb.makeReducer(drawPile);
+    const result = reducer(game, { type: sb.turnStage.start });
+    expect(result.resources.length).toBe(5);
+    const expected = [
+      { rank: 1, suit: 0 },
+      { rank: 2, suit: 0 },
+      { rank: 3, suit: 0 },
+      { rank: 4, suit: 0 },
+      { rank: 5, suit: 0 },
+    ];
+    expect(result.resources).toStrictEqual(expected);
+  });
+  it("draws cards in start turn phase", () => {
+    const reducer = sb.makeReducer(drawPile);
+    let result = reducer(game, { type: sb.turnStage.start });
+    result = reducer(result, { type: sb.turnStage.playerTurn });
+
+    // resources should be unchanged
+    expect(result.resources.length).toBe(5);
+    const expected = [
+      { rank: 1, suit: 0 },
+      { rank: 2, suit: 0 },
+      { rank: 3, suit: 0 },
+      { rank: 4, suit: 0 },
+      { rank: 5, suit: 0 },
+    ];
+
+    // player and dealer hands
+    const expectedPlayerHand = [
+      { rank: 6, suit: 0 },
+      { rank: 7, suit: 0 },
+    ];
+    const expectedDealerHand = [
+      { rank: 8, suit: 0 },
+      { rank: 9, suit: 0 },
+    ];
+
+    expect(result.resources).toStrictEqual(expected);
+    expect(result.playerHand).toStrictEqual(expectedPlayerHand);
+    expect(result.dealerHand).toStrictEqual(expectedDealerHand);
+    console.log(result);
+  });
+});
