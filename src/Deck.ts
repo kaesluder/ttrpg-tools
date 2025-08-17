@@ -9,8 +9,8 @@ export const enum suitEnum {
 }
 
 export interface Card {
-  rank: number;
-  suit: suitEnum;
+  readonly rank: number;
+  readonly suit: suitEnum;
 }
 
 export class Deck {

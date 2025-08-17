@@ -13,13 +13,21 @@ describe("Survival Blackjack: take", () => {
   });
 });
 
+describe("Survival Blackjack: setStage", () => {
+  it("sets the stage property", () => {
+    const game = new sb.SurvivalBlackjack();
+    const gameAfterSetStage = game.setStage(sb.turnStage.endgame);
+    expect(gameAfterSetStage.stage).toBe(sb.turnStage.endgame);
+  });
+});
+
 describe("Survival Blackjack: setup", () => {
   it("adds 5 cards (default resourceCount) to the resources array", () => {
     const deck = new Deck();
     const drawPile = deck.shuffledDeck.values();
     const game = new sb.SurvivalBlackjack();
     expect(game.resources).toHaveLength(0);
-    const gameAfterSetup = sb.setup(game, drawPile);
+    const gameAfterSetup = game.setup(drawPile);
     expect(gameAfterSetup.resources).toHaveLength(5);
 
     // test that game has been copied
@@ -31,7 +39,7 @@ describe("Survival Blackjack: setup", () => {
     const drawPile = deck.shuffledDeck.values();
     const game = new sb.SurvivalBlackjack();
     expect(game.resources).toHaveLength(0);
-    const gameAfterSetup = sb.setup(game, drawPile, resourceCount);
+    const gameAfterSetup = game.setup(drawPile, resourceCount);
     expect(gameAfterSetup.resources).toHaveLength(8);
   });
 });
@@ -74,7 +82,7 @@ describe("Survival Blackjack: startTurn", () => {
     const game = new sb.SurvivalBlackjack();
     expect(game.playerHand).toHaveLength(0);
     expect(game.dealerHand).toHaveLength(0);
-    const gameAfterTurnStart = sb.startTurn(game, drawPile);
+    const gameAfterTurnStart = game.startTurn(drawPile);
     expect(gameAfterTurnStart.playerHand).toHaveLength(2);
     expect(gameAfterTurnStart.dealerHand).toHaveLength(2);
   });
@@ -131,5 +139,39 @@ describe("reducer functions", () => {
     expect(result.playerHand).toStrictEqual(expectedPlayerHand);
     expect(result.dealerHand).toStrictEqual(expectedDealerHand);
     console.log(result);
+  });
+  it("adds a card to playerHand on hit", () => {
+    const reducer = sb.makeReducer(drawPile);
+    let result = reducer(game, { type: sb.turnStage.start });
+    result = reducer(result, { type: sb.turnStage.playerTurn });
+
+    // playerHand should have two cards before hit
+    expect(result.playerHand.length).toBe(2);
+
+    // hit (draw a card)
+    result = reducer(result, { type: sb.turnStage.hit, drawPile: drawPile });
+    expect(result.playerHand.length).toBe(3);
+
+    // reset back to playerTurn
+    expect(result.stage).toBe(sb.turnStage.playerTurn);
+  });
+  it("jumps to endgame if hit and deck is exhausted", () => {
+    const reducer = sb.makeReducer(drawPile);
+    let result = reducer(game, { type: sb.turnStage.start });
+    result = reducer(result, { type: sb.turnStage.playerTurn });
+
+    // playerHand should have two cards before hit
+    expect(result.playerHand.length).toBe(2);
+
+    // hit (draw a card)
+    const exhaustedDeck: ArrayIterator<Card> = [].values();
+    result = reducer(result, {
+      type: sb.turnStage.hit,
+      drawPile: exhaustedDeck,
+    });
+    expect(result.playerHand.length).toBe(2);
+
+    // jump to endgame
+    expect(result.stage).toBe(sb.turnStage.endgame);
   });
 });

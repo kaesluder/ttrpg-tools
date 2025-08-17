@@ -15,22 +15,45 @@ export const enum turnStage {
 
 export interface ReducerAction {
   type: turnStage;
+  drawPile?: ArrayIterator<Card>;
+  deckExhaustedHook?: () => void;
 }
 
-export function makeReducer(drawPile: ArrayIterator<Card>) {
+/**
+ * Create a reducer function using drawPile as the array iterator.
+ * @param {ArrayIterator<Card>} drawPile
+ * @returns {(SurvivalBlackjack, ReducerAction) => SurvivalBlackjack} reducer function
+ */
+export function makeReducer(
+  drawPile: ArrayIterator<Card>,
+): (game: SurvivalBlackjack, action: ReducerAction) => SurvivalBlackjack {
   return function reducer(state: SurvivalBlackjack, action: ReducerAction) {
-    console.log("reducer");
     switch (action.type) {
+      // start the game drawing resources
       case turnStage.start:
         return produce(state, (state) => {
-          state = setup(state, drawPile);
-          state.stage = turnStage.start;
+          state = state.setup(drawPile).setStage(turnStage.start);
           return state;
         });
+      // start player turn. Draw two cards for player and dealer.
       case turnStage.playerTurn:
         return produce(state, (state) => {
-          state = startTurn(state, drawPile);
-          state.stage = turnStage.playerTurn;
+          state = state.startTurn(drawPile).setStage(turnStage.playerTurn);
+          return state;
+        });
+      case turnStage.hit:
+        return produce(state, (state) => {
+          const drawResult = state.playerDraw(
+            action.drawPile!,
+            action.deckExhaustedHook,
+          );
+          console.log("drawResult", drawResult);
+          if (drawResult) {
+            return state.setStage(turnStage.playerTurn);
+          } else {
+            console.log("jump to endgame");
+            return state.setStage(turnStage.endgame);
+          }
           return state;
         });
       case turnStage.dealerTurn:
@@ -55,6 +78,64 @@ export class SurvivalBlackjack {
   dealerScore: number = 0;
   stage: turnStage = turnStage.start;
   losingStreak: number = 0;
+
+  /**
+   * functional setStage
+   *
+   */
+  setStage(stage: turnStage): SurvivalBlackjack {
+    return produce(this, (state) => {
+      state.stage = stage;
+    });
+  }
+
+  /**
+   * Set up the game allocating resources to the player.
+   * @modifies this.resources
+   */
+  setup(
+    shuffledDeck: ArrayIterator<Card>,
+    resourceCount: number = RESOURCE_COUNT,
+  ): SurvivalBlackjack {
+    return produce(this, (game) => {
+      game.resources = take(shuffledDeck, resourceCount);
+    });
+  }
+
+  /**
+   * Start a new turn, dealing two cards to player and dealer.
+   * @param {ArrayIterator<Card[]>} drawPile: old game state
+   * @returns {SurvivalBlackjack} new game state
+   */
+  startTurn(drawPile: ArrayIterator<Card>): SurvivalBlackjack {
+    return produce(this, (game) => {
+      game.playerHand = take(drawPile, 2);
+      game.dealerHand = take(drawPile, 2);
+    });
+  }
+
+  /**
+   * Draw a single card from the draw pile and add to player hand.
+   * @param {function} deckExhaustedHook function to call if deck is exhausted
+   * @modifies playerHand
+   * @modifies drawIter state
+   * @returns {boolean} true if card has been drawn.
+   */
+  playerDraw(
+    drawPile: ArrayIterator<Card>,
+    deckExhaustedHook: null | (() => void) = null,
+  ): boolean {
+    const next = drawPile.next();
+    if (next.value) {
+      this.playerHand.push(next.value);
+      return true;
+    } else {
+      if (deckExhaustedHook) {
+        deckExhaustedHook();
+      }
+      return false;
+    }
+  }
 }
 
 /**
@@ -76,20 +157,6 @@ export function take(iter: ArrayIterator<Card>, n: number): Card[] {
     }
   }
   return drawnCards;
-}
-
-/**
- * Set up the game allocating resources to the player.
- * @modifies this.resources
- */
-export function setup(
-  game: SurvivalBlackjack,
-  shuffledDeck: ArrayIterator<Card>,
-  resourceCount: number = RESOURCE_COUNT,
-): SurvivalBlackjack {
-  return produce(game, (game) => {
-    game.resources = take(shuffledDeck, resourceCount);
-  });
 }
 
 /**
@@ -127,39 +194,6 @@ export function blackjackScoreHand(cards: Card[]): number {
     }
   }, 0);
 }
-
-/**
- * Start a new turn, dealing two cards to player and dealer.
- * @param {game: SurvivalBlackjack} game: old game state
- * @returns {game: SurvivalBlackjack} new game state
- */
-export function startTurn(
-  game: SurvivalBlackjack,
-  drawPile: ArrayIterator<Card>,
-): SurvivalBlackjack {
-  return produce(game, (game) => {
-    game.playerHand = take(drawPile, 2);
-    game.dealerHand = take(drawPile, 2);
-  });
-}
-
-// /**
-//  * Draw a single card from the draw pile and add to player hand.
-//  * @param {function} deckExhaustedHook function to call if deck is exhausted
-//  * @modifies playerHand
-//  * @modifies drawIter state
-//  * @returns {boolean} true if card has been drawn.
-//  */
-// playerDraw(deckExhaustedHook: () => void): boolean {
-//   const next = this.drawIter.next();
-//   if (next.value) {
-//     this.playerHand.push(next.value);
-//     return true;
-//   } else {
-//     deckExhaustedHook();
-//     return false;
-//   }
-// }
 
 // /**
 //  * Draw a single card from the draw pile and add to dealer hand.
