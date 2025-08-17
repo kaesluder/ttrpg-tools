@@ -81,7 +81,9 @@ export class SurvivalBlackjack {
 
   /**
    * functional setStage
-   *
+   * @param {turnStage} next game stage or action
+   * @modifies this.stage
+   * @returns {SurvivalBlackjack} new game state
    */
   setStage(stage: turnStage): SurvivalBlackjack {
     return produce(this, (state) => {
@@ -91,7 +93,9 @@ export class SurvivalBlackjack {
 
   /**
    * Set up the game allocating resources to the player.
+   * @param {ArrayIterator<Card>} shuffledDeck random card iterator
    * @modifies this.resources
+   * @returns {SurvivalBlackjack} new game state
    */
   setup(
     shuffledDeck: ArrayIterator<Card>,
@@ -104,7 +108,8 @@ export class SurvivalBlackjack {
 
   /**
    * Start a new turn, dealing two cards to player and dealer.
-   * @param {ArrayIterator<Card[]>} drawPile: old game state
+   * @param {ArrayIterator<Card>} drawPile: old game state
+   * @modifies game state, playerHand, dealerHand
    * @returns {SurvivalBlackjack} new game state
    */
   startTurn(drawPile: ArrayIterator<Card>): SurvivalBlackjack {
@@ -116,6 +121,7 @@ export class SurvivalBlackjack {
 
   /**
    * Draw a single card from the draw pile and add to player hand.
+   * @param {ArrayIterator<Card>} drawPile: iterator of shuffled cards
    * @param {function} deckExhaustedHook function to call if deck is exhausted
    * @modifies playerHand
    * @modifies drawIter state
