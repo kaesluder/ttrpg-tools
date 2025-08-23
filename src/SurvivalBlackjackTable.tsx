@@ -69,7 +69,7 @@ export default function SurvivalBlackjackTable() {
 
   function startStageHidden() {
     if (game.stage === sb.turnStage.start) {
-      return "invisible";
+      return "hidden";
     } else {
       return "visible";
     }

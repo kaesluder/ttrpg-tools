@@ -35,13 +35,13 @@ export default function CardButton(props: CardButtonProps) {
   const localizeSuit = (suit: Suit): string => {
     switch (suit) {
       case "clubs":
-        return "Clubs";
+        return "\u2663";
       case "diamonds":
-        return "Diamonds";
+        return "\u2666";
       case "hearts":
-        return "Hearts";
+        return "\u2665";
       case "spades":
-        return "Spades";
+        return "\u2660";
       default:
         // joker
         return "";
@@ -53,9 +53,20 @@ export default function CardButton(props: CardButtonProps) {
 
   // TODO: format, suit formatting
 
+  let cardTextColor = "";
+  if (props.card.suit === "clubs" || props.card.suit === "spades") {
+    cardTextColor = "text-gray-950";
+  } else {
+    cardTextColor = "text-red-800";
+  }
+
   return (
-    <button onClick={handleClick}>
-      {rankString} {suitString}
+    <button
+      className={`bg-yellow-50 ${cardTextColor} text-2xl m-3 w-24 h-24 p-1 rounded-md`}
+      onClick={handleClick}
+    >
+      <div className="text-2xl">{rankString}</div>
+      <div className="text-5xl">{suitString}</div>
     </button>
   );
 }
