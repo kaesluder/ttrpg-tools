@@ -1,7 +1,7 @@
 import { useReducer, useState, useEffect, useRef, type JSX } from "react";
 import "./App.css";
 import CardButton from "./CardButton";
-import { suitEnum, type Card, Deck } from "./Deck";
+import { type Suit, type Card, Deck } from "./Deck";
 import * as sb from "./SurvivalBlackjack";
 import { produce } from "immer";
 

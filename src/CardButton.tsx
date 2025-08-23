@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type JSX } from "react";
-import { type Card, suitEnum } from "./Deck";
+import { type Card, type Suit } from "./Deck";
 
 interface CardButtonProps {
   card: Card;
@@ -32,15 +32,15 @@ export default function CardButton(props: CardButtonProps) {
   };
 
   /** Transform suits to localized string */
-  const localizeSuit = (suit: suitEnum): string => {
+  const localizeSuit = (suit: Suit): string => {
     switch (suit) {
-      case suitEnum.clubs:
+      case "clubs":
         return "Clubs";
-      case suitEnum.diamonds:
+      case "diamonds":
         return "Diamonds";
-      case suitEnum.hearts:
+      case "hearts":
         return "Hearts";
-      case suitEnum.spades:
+      case "spades":
         return "Spades";
       default:
         // joker

@@ -1,6 +1,6 @@
 import * as sb from "../src/SurvivalBlackjack";
 import { describe, it, expect, vi } from "vitest";
-import { Deck, type Card, suitEnum } from "../src/Deck";
+import { Deck, type Card } from "../src/Deck";
 
 describe("Survival Blackjack: take", () => {
   it("returns an array of n cards", () => {
@@ -44,9 +44,9 @@ describe("Survival Blackjack: setup", () => {
   });
 });
 
-const ace: Card = { suit: suitEnum.clubs, rank: 1 };
-const numberCard: Card = { suit: suitEnum.spades, rank: 5 };
-const faceCard: Card = { suit: suitEnum.diamonds, rank: 12 };
+const ace: Card = { suit: "clubs", rank: 1 };
+const numberCard: Card = { suit: "spades", rank: 5 };
+const faceCard: Card = { suit: "diamonds", rank: 12 };
 
 describe("SurvivalBlackjack: blackjackScoreCard", () => {
   it("returns representative values for ace, number, and face cards", () => {
@@ -102,11 +102,11 @@ describe("reducer functions", () => {
     const result = reducer(game, { type: sb.turnStage.start });
     expect(result.resources.length).toBe(5);
     const expected = [
-      { rank: 1, suit: 0 },
-      { rank: 2, suit: 0 },
-      { rank: 3, suit: 0 },
-      { rank: 4, suit: 0 },
-      { rank: 5, suit: 0 },
+      { rank: 1, suit: "clubs" },
+      { rank: 2, suit: "clubs" },
+      { rank: 3, suit: "clubs" },
+      { rank: 4, suit: "clubs" },
+      { rank: 5, suit: "clubs" },
     ];
     expect(result.resources).toStrictEqual(expected);
   });
@@ -118,21 +118,21 @@ describe("reducer functions", () => {
     // resources should be unchanged
     expect(result.resources.length).toBe(5);
     const expected = [
-      { rank: 1, suit: 0 },
-      { rank: 2, suit: 0 },
-      { rank: 3, suit: 0 },
-      { rank: 4, suit: 0 },
-      { rank: 5, suit: 0 },
+      { rank: 1, suit: "clubs" },
+      { rank: 2, suit: "clubs" },
+      { rank: 3, suit: "clubs" },
+      { rank: 4, suit: "clubs" },
+      { rank: 5, suit: "clubs" },
     ];
 
     // player and dealer hands
     const expectedPlayerHand = [
-      { rank: 6, suit: 0 },
-      { rank: 7, suit: 0 },
+      { rank: 6, suit: "clubs" },
+      { rank: 7, suit: "clubs" },
     ];
     const expectedDealerHand = [
-      { rank: 8, suit: 0 },
-      { rank: 9, suit: 0 },
+      { rank: 8, suit: "clubs" },
+      { rank: 9, suit: "clubs" },
     ];
 
     expect(result.resources).toStrictEqual(expected);
