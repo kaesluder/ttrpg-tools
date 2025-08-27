@@ -88,6 +88,60 @@ describe("Survival Blackjack: startTurn", () => {
   });
 });
 
+describe("Survival Blackjack: playerDraw", () => {
+  let deck: Deck;
+  let drawPile: ArrayIterator<Card>;
+  let game: sb.SurvivalBlackjack;
+  beforeEach(() => {
+    deck = new Deck();
+    drawPile = deck.sortedDeck.values();
+    game = new sb.SurvivalBlackjack();
+  });
+  it("adds one card to player hand", () => {
+    expect(game.playerHand).toHaveLength(0);
+    const playerDrawResult = game.playerDraw(drawPile);
+    expect(playerDrawResult).toBe(true);
+    expect(game.playerHand).toHaveLength(1);
+    expect(game.playerHand[0]).toStrictEqual({ rank: 1, suit: 'clubs' })
+  });
+  it("calls callback if deck exhausted", () => {
+    const callback = vi.fn();
+    const discardPile = sb.take(drawPile, 54);
+    expect(game.playerHand).toHaveLength(0);
+    const playerDrawResult = game.playerDraw(drawPile, callback);
+    expect(playerDrawResult).toBe(false);
+    expect(callback).toBeCalledTimes(1)
+    
+  })
+});
+
+
+describe("Survival Blackjack: dealerDraw", () => {
+  let deck: Deck;
+  let drawPile: ArrayIterator<Card>;
+  let game: sb.SurvivalBlackjack;
+  beforeEach(() => {
+    deck = new Deck();
+    drawPile = deck.sortedDeck.values();
+    game = new sb.SurvivalBlackjack();
+  });
+  it("adds one card to dealer hand", () => {
+    expect(game.dealerHand).toHaveLength(0);
+    const dealerDrawResult = game.dealerDraw(drawPile);
+    expect(dealerDrawResult).toBe(true);
+    expect(game.dealerHand).toHaveLength(1);
+    expect(game.dealerHand[0]).toStrictEqual({ rank: 1, suit: 'clubs' })
+  });
+  it("calls callback if deck exhausted", () => {
+    const callback = vi.fn();
+    const discardPile = sb.take(drawPile, 54);
+    expect(game.dealerHand).toHaveLength(0);
+    const dealerDrawResult = game.dealerDraw(drawPile, callback);
+    expect(dealerDrawResult).toBe(false);
+    expect(callback).toBeCalledTimes(1)
+    
+  })
+});
 describe("reducer functions", () => {
   let deck: Deck;
   let drawPile: ArrayIterator<Card>;

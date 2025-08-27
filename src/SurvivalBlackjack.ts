@@ -3,6 +3,8 @@ import { produce, immerable } from "immer";
 
 const RESOURCE_COUNT = 5;
 
+// TODO: Convert to literal union type
+
 export const enum turnStage {
   start,
   playerTurn,
@@ -142,6 +144,26 @@ export class SurvivalBlackjack {
       return false;
     }
   }
+  /**
+   * Draw a single card from the draw pile and add to dealer hand.
+   * @param {function} deckExhaustedHook function to call if deck is exhausted
+   * @modifies dealerHand
+   * @modifies drawIter state
+   * @returns {boolean} true if card has been drawn.
+   */
+  dealerDraw(drawPile: ArrayIterator<Card>, deckExhaustedHook: null | (() => void) = null): boolean {
+    const next = drawPile.next();
+    if (next.value) {
+      this.dealerHand.push(next.value);
+      return true;
+    } else {
+      if (deckExhaustedHook) {
+        deckExhaustedHook();
+      }
+      return false;
+    }
+  }
+
 }
 
 /**
@@ -200,24 +222,6 @@ export function blackjackScoreHand(cards: Card[]): number {
     }
   }, 0);
 }
-
-// /**
-//  * Draw a single card from the draw pile and add to dealer hand.
-//  * @param {function} deckExhaustedHook function to call if deck is exhausted
-//  * @modifies dealerHand
-//  * @modifies drawIter state
-//  * @returns {boolean} true if card has been drawn.
-//  */
-// dealerDraw(deckExhaustedHook: () => void): boolean {
-//   const next = this.drawIter.next();
-//   if (next.value) {
-//     this.dealerHand.push(next.value);
-//     return true;
-//   } else {
-//     deckExhaustedHook();
-//     return false;
-//   }
-// }
 
 // /**
 //  * Draw repeatedly until dealer minimum is reached
