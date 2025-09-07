@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, type JSX } from "react";
-import "./App.css";
 import {
   mosaicFetch,
   type Tile,
   tilesFromFileList,
   drawGenerator,
 } from "./mosaicUtils";
+import { Button } from "flowbite-react";
 
 function App() {
   // List of tiles displayed on page.
@@ -98,16 +98,16 @@ function App() {
   };
 
   return (
-    <main className="flex gap-6">
+    <main className="bg-slate-950 flex gap-6 mx-auto">
       <section id="mosaic">
         <div className="grid grid-cols-3 bg-white">{renderList()}</div>
-        <div className="mt-3">
-          <button id="refresh_button" onClick={handleDrawCards}>
+        <div className="mt-3 flex items-center justify-center">
+          <Button outline color="green" id="refresh_button" onClick={handleDrawCards}>
             Draw New Tiles
-          </button>
+          </Button>
         </div>
       </section>
-      <section className="prose-invert prose text-left">
+      <section className="prose-invert prose text-left text-slate-100">
         <h1>Instructions</h1>
         <p>
           Click <em>redraw</em> to show a new set of random tiles. Click one or
@@ -117,12 +117,12 @@ function App() {
         <p>Image sources:</p>
         <ul className="list-disc">
           <li>
-            <a href="https://commons.wikimedia.org/wiki/Main_Page">
+            <a className="hover:text-pink-200" href="https://commons.wikimedia.org/wiki/Main_Page">
               Wikimedia Commons
             </a>
           </li>
           <li>
-            <a href="https://www.metmuseum.org/about-the-met/policies-and-documents/open-access">
+            <a className="hover:text-pink-200" href="https://www.metmuseum.org/about-the-met/policies-and-documents/open-access">
               The Metropolitan Museum of Art Open Access Collection
             </a>
           </li>
